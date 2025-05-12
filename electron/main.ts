@@ -21,7 +21,7 @@ let win: BrowserWindow | null;
 
 function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    icon: path.join(process.env.VITE_PUBLIC, 'icon.ico'),
     autoHideMenuBar: true,
     width: 1600,
     height: 900,
