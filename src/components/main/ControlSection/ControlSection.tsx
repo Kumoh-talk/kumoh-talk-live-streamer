@@ -1,6 +1,7 @@
+import clsx from 'clsx';
 import { Button } from '@/components/common';
 import { useStreamer } from '@/hooks/useStreamer';
-import clsx from 'clsx';
+import { StreamKeyInput } from '..';
 
 export const ControlSection = () => {
   const { connect, disconnect, connStatus } = useStreamer();
@@ -11,6 +12,7 @@ export const ControlSection = () => {
       <Button className={clsx({'bg-blue-500 text-white': isConnected})} onClick={isConnected ? disconnect : connect}>
         {isConnected ? '방송 종료' : '방송 시작'}
       </Button>
+      <StreamKeyInput />
     </section>
   );
 };
