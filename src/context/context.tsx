@@ -96,7 +96,7 @@ export const StreamProvider = (props: Props): React.ReactNode => {
     if (source) {
       window.stream.setSourceWebcam(source.name);
     }
-  }, [webcamSource]);
+  }, [webcamSource, webcamSources]);
 
   const actions: Actions = useMemo(
     () => ({
