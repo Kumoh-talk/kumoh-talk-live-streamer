@@ -40,10 +40,6 @@ type Props = {
 export const StreamProvider = (props: Props): React.ReactNode => {
   const { connect, disconnect, connStatus, streamKey, setStreamKey } = useStreamer();
 
-  useEffect(() => {
-    setStreamKey('rtmp://localhost:3935/live');
-  }, [setStreamKey]);
-
   const [displaySources, setDisplaySources] = useState<
     {
       id: string;
@@ -92,7 +88,15 @@ export const StreamProvider = (props: Props): React.ReactNode => {
 
   useEffect(() => {
     window.screenCapture.selectSource(displaySource);
+    window.stream.setSourceDesktop(displaySource);
   }, [displaySource]);
+
+  useEffect(() => {
+    const source = webcamSources.find((source) => source.id === webcamSource);
+    if (source) {
+      window.stream.setSourceWebcam(source.name);
+    }
+  }, [webcamSource]);
 
   const actions: Actions = useMemo(
     () => ({

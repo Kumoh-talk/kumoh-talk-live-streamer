@@ -8,7 +8,7 @@ export type VideoCaptureRtpParams = {
 
 export type VideoCaptureOptions = {
   device: {
-    type: 'screen' | 'camera';
+    type: 'screen' | 'camera' | 'window';
     name: string;
   };
   resolution: {

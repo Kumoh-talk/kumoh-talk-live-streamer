@@ -17,8 +17,8 @@ export class StreamClient {
   private _streamKey: string = '';
   private set streamKey(value: string) {
     this._streamKey = value;
-    this.desktopClient.setStreamKey(this._streamKey + '/desktop');
-    this.webcamClient.setStreamKey(this._streamKey + '/webcam');
+    this.desktopClient.setStreamKey(this._streamKey + '_desktop');
+    this.webcamClient.setStreamKey(this._streamKey + '_webcam');
   }
 
   constructor(win: BrowserWindow) {
@@ -47,6 +47,17 @@ export class StreamClient {
     this.webcamClient.on('start', this.sendConnStatus);
     this.desktopClient.on('stop', this.sendConnStatus);
     this.webcamClient.on('stop', this.sendConnStatus);
+
+    ipcMain.handle('stream/set-source-desktop', async (_, deviceName: string) => {
+      const [type, id] = deviceName.split(':');
+      console.log('set-source-desktop', type, id);
+      this.desktopClient.setDevice(type as 'window' | 'screen', id);
+    });
+
+    ipcMain.handle('stream/set-source-webcam', async (_, deviceName: string) => {
+      const converted = deviceName.split(' (')[0];
+      this.webcamClient.setDevice('camera', converted);
+    });
 
     ipcMain.handle('stream/get-stream-key', async () => {
       return this._streamKey;

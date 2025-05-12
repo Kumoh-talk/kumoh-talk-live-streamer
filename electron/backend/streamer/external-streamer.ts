@@ -93,7 +93,7 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
     }
   };
 
-  public setDevice = (type: 'screen' | 'camera', device: string) => {
+  public setDevice = (type: 'screen' | 'camera' | 'window', device: string) => {
     this._options.device = {
       type,
       name: device,

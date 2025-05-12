@@ -1,4 +1,8 @@
 import { ExternalStreamer, ExternalStreamerStats } from './external-streamer';
+import { app } from 'electron';
+import path from 'path';
+
+const isDev = !app.isPackaged;
 
 export type KeyValueType = {
   key: string;
@@ -10,34 +14,77 @@ export class GstreamerClient extends ExternalStreamer {
   public readonly name = 'gstreamer';
   public streamKey: string = '';
 
+  private generateSource = () => {
+    switch (this._options.device.type) {
+      case 'screen':
+        return [
+          `d3d11screencapturesrc`,
+          `monitor-index=${this._options.device.name}`,
+          `show-cursor=true`,
+          // `crop-width=${this._options.resolution.width}`,
+          // `crop-height=${this._options.resolution.height}`,
+          `!`,
+          `video/x-raw(memory:D3D11Memory)`,
+          `! queue`,
+          `! d3d11convert`,
+          `! video/x-raw(memory:D3D11Memory),format=NV12,width=${this._options.resolution.width},height=${this._options.resolution.height},framerate=${this._options.resolution.frameRate}/1`,
+          `! d3d11download`,
+        ];
+      case 'camera':
+        return [`mfvideosrc`, `device-name="${this._options.device.name}"`, `!`, `d3d11upload`,
+          `! d3d11convert`,
+          `! video/x-raw(memory:D3D11Memory),format=NV12`,
+          `! d3d11download`,];
+      case 'window':
+        return [
+          `d3d11screencapturesrc`,
+          `window-handle=${this._options.device.name}`,
+          `show-cursor=true`,
+          // `crop-width=${this._options.resolution.width}`,
+          // `crop-height=${this._options.resolution.height}`,
+          `!`,
+          `video/x-raw(memory:D3D11Memory)`,
+          `! queue`,
+          `! d3d11convert`,
+          `! video/x-raw(memory:D3D11Memory),format=NV12,width=${this._options.resolution.width},height=${this._options.resolution.height},framerate=${this._options.resolution.frameRate}/1`,
+          `! d3d11download`,
+        ];
+      default:
+        throw new Error('Invalid device type');
+    }
+  };
+
   public generateCommand = (): [string, string[]] => {
-    const source =
-      this._options.device.type === 'screen'
-        ? [
-            `d3d11screencapturesrc`,
-            `monitor-index=${this._options.device.name}`,
-            `show-cursor=true`,
-            // `crop-width=${this._options.resolution.width}`,
-            // `crop-height=${this._options.resolution.height}`,
-            `!`,
-            `video/x-raw(memory:D3D11Memory)`,
-          ]
-        : [`mfvideosrc`, `device-name="${this._options.device.name}"`, `!`, `d3d11upload`];
+    const exePath = this.getExecutablePath();
+    const source = this.generateSource();
     return [
-      'gst-launch-1.0',
+      exePath,
       [
         `-v`,
         source,
-        `! queue`,
-        `! d3d11convert`,
-        `! video/x-raw(memory:D3D11Memory),format=NV12,width=${this._options.resolution.width},height=${this._options.resolution.height},framerate=${this._options.resolution.frameRate}/1`,
-        `! d3d11download`,
-        `! nvh264enc bitrate=${Math.floor(this._options.bitrate / 2)}`,
-        `! video/x-h264,profile=high ! h264parse`,
-        `! flvmux streamable=true ! queue `,
+        `! qsvh264enc bitrate=${this._options.bitrate}`,
+        // `! x264enc bitrate=${Math.floor(this._options.bitrate / 2)} tune=zerolatency`,
+        // `! nvh264enc bitrate=${Math.floor(this._options.bitrate / 2)}`,
+        `! h264parse ! video/x-h264,profile=high ! queue ! mux.`,
+        `wasapisrc ! audioconvert ! audioresample ! voaacenc bitrate=128000 ! queue ! mux.`,
+        `flvmux name=mux streamable=true ! queue `,
         `! rtmpsink location=${this.streamKey}`,
       ].flatMap((v) => (Array.isArray(v) ? v : v.split(' '))),
     ];
+  };
+
+  private getExecutablePath = () => {
+    if (isDev) {
+      return path.join(
+        app.getAppPath(),
+        'public/lib/gstreamer/1.0/msvc_x86_64/bin/gst-launch-1.0.exe'
+      );
+    } else {
+      return path.join(
+        process.resourcesPath,
+        'lib/gstreamer/1.0/msvc_x86_64/bin/gst-launch-1.0.exe'
+      );
+    }
   };
 
   protected parseStats = (data: string): ExternalStreamerStats | null => {
