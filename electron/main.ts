@@ -36,7 +36,7 @@ function createWindow() {
     win?.webContents.send('main-process-message', new Date().toLocaleString());
   });
 
-  session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
+  session.defaultSession.setDisplayMediaRequestHandler((_, callback) => {
     desktopCapturer.getSources({ types: ['screen', 'window'] }).then((sources) => {
       const targetSource = sources.find((source) => source.id === selectedSourceId) || sources[0];
       // Grant access to the first screen found.
