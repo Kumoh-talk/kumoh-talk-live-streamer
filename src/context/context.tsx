@@ -1,25 +1,17 @@
+import { useCaptureSource } from '@/hooks/useCaptureSource';
 import { useStreamer } from '@/hooks/useStreamer';
+import { CaptureSource } from '@/types/capture';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 export type Values = {
   readonly displaySource: string;
-  readonly displaySources: {
-    id: string;
-    name: string;
-    thumbnail: string;
-    display_id: string;
-    appIcon: string | null;
-  }[];
+  readonly displaySources: CaptureSource[];
   readonly webcamSource: string;
-  readonly webcamSources: {
-    id: string;
-    name: string;
-    thumbnail: string;
-    display_id: string;
-    appIcon: string | null;
-  }[];
+  readonly webcamSources: CaptureSource[];
   readonly connStatus: Record<string, boolean>;
   readonly streamKey: string;
+  readonly streamDesktop: MediaStream | null;
+  readonly streamWebcam: MediaStream | null;
 };
 
 export type Actions = {
@@ -39,63 +31,59 @@ type Props = {
 
 export const StreamProvider = (props: Props): React.ReactNode => {
   const { connect, disconnect, connStatus, streamKey, setStreamKey } = useStreamer();
+  const {
+    displaySources,
+    displaySource,
+    setDisplaySource,
+    webcamSources,
+    webcamSource,
+    setWebcamSource,
+  } = useCaptureSource();
 
-  const [displaySources, setDisplaySources] = useState<
-    {
-      id: string;
-      name: string;
-      thumbnail: string;
-      display_id: string;
-      appIcon: string | null;
-    }[]
-  >([]);
-  const [displaySource, setDisplaySource] = useState<string>('screen:0:0');
-
-  const [webcamSources, setWebcamSources] = useState<
-    {
-      id: string;
-      name: string;
-      thumbnail: string;
-      display_id: string;
-      appIcon: string | null;
-    }[]
-  >([]);
-  const [webcamSource, setWebcamSource] = useState<string>('');
+  const [streamDesktop, setStreamDesktop] = useState<MediaStream | null>(null);
+  const [streamWebcam, setStreamWebcam] = useState<MediaStream | null>(null);
 
   useEffect(() => {
-    const fetchDisplaySources = async () => {
-      const sources = await window.screenCapture.getDesktopSources();
-      setDisplaySources(sources);
-      setDisplaySource(sources[0].id);
-    };
-    const fetchWebcamSources = async () => {
-      const sources = await navigator.mediaDevices.enumerateDevices();
-      const webcamSources = sources.filter((source) => source.kind === 'videoinput');
-      setWebcamSources(
-        webcamSources.map((source) => ({
-          id: source.deviceId,
-          name: source.label || 'Webcam',
-          thumbnail: '', // Placeholder, as webcam sources don't have thumbnails in this context
-          display_id: '', // Placeholder, as webcam sources don't have display IDs in this context;
-          appIcon: null, // Placeholder, as webcam sources don't have app icons in this context
-        }))
-      );
-      setWebcamSource(webcamSources[0]?.deviceId || '');
-    };
-    fetchDisplaySources();
-    fetchWebcamSources();
-  }, []);
+    const startCapture = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          audio: true,
+          video: {
+            width: 1280,
+            height: 720,
+            frameRate: 30,
+          },
+        });
 
-  useEffect(() => {
-    window.screenCapture.selectSource(displaySource);
-    window.stream.setSourceDesktop(displaySource);
+        setStreamDesktop(stream);
+      } catch (err) {
+        console.error('화면 캡처 실패:', err);
+        setStreamDesktop(null);
+      }
+    };
+    startCapture();
   }, [displaySource]);
 
   useEffect(() => {
-    const source = webcamSources.find((source) => source.id === webcamSource);
-    if (source) {
-      window.stream.setSourceWebcam(source.name);
-    }
+    const startCapture = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            deviceId: webcamSource,
+            width: 1280,
+            height: 720,
+            frameRate: 30,
+          },
+        });
+
+        setStreamWebcam(stream);
+      } catch (err) {
+        console.error('웹캠 캡처 실패:', err);
+        setStreamWebcam(null);
+      }
+    };
+    startCapture();
   }, [webcamSource]);
 
   const actions: Actions = useMemo(
@@ -119,6 +107,8 @@ export const StreamProvider = (props: Props): React.ReactNode => {
           webcamSource,
           connStatus,
           streamKey,
+          streamDesktop,
+          streamWebcam,
         }}
       >
         {props.children}
@@ -127,6 +117,7 @@ export const StreamProvider = (props: Props): React.ReactNode => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useStreamValue = () => {
   const value = useContext(StreamValueContext);
   if (!value) {
@@ -135,6 +126,7 @@ export const useStreamValue = () => {
   return value;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useStreamActions = () => {
   const value = useContext(StreamActionsContext);
   if (!value) {

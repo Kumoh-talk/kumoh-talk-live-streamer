@@ -18,6 +18,7 @@ export interface ExternalStreamerEventMap {
 export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEventMap> {
   public abstract readonly name: string;
   public isStarted = false;
+  public streamKey: string = '';
 
   protected _stream: ChildProcessWithoutNullStreams | null = null;
   protected set stream(value: ChildProcessWithoutNullStreams | null) {
@@ -117,6 +118,14 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
         }
       }, 50);
     });
+  };
+
+  public setStreamKey = (key: string) => {
+    this.streamKey = key;
+  };
+
+  public sendChunk = (chunk: Buffer) => {
+    this.stream?.stdin.write(chunk);
   };
 
   protected abstract generateCommand: (rtp: VideoCaptureRtpParams) => [string, string[]];

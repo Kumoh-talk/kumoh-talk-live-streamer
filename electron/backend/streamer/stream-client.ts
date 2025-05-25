@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import { GstreamerClient } from './gstreamer-client';
+import { FfmpegClient } from './ffmpeg-client';
+import { ExternalStreamer } from './external-streamer';
 
 const dummyRtp = {
   ssrc: 1,
@@ -11,8 +12,8 @@ const dummyRtp = {
 export class StreamClient {
   private win: BrowserWindow;
 
-  private desktopClient: GstreamerClient;
-  private webcamClient: GstreamerClient;
+  private desktopClient: ExternalStreamer;
+  private webcamClient: ExternalStreamer;
 
   private _streamKey: string = '';
   private set streamKey(value: string) {
@@ -24,10 +25,8 @@ export class StreamClient {
   constructor(win: BrowserWindow) {
     this.win = win;
 
-    this.desktopClient = new GstreamerClient();
-    this.desktopClient.setDevice('screen', '0');
-
-    this.webcamClient = new GstreamerClient();
+    this.desktopClient = new FfmpegClient();
+    this.webcamClient = new FfmpegClient();
 
     this.handleEvents();
   }
@@ -65,12 +64,19 @@ export class StreamClient {
     ipcMain.handle('stream/set-stream-key', async (_, streamKey: string) => {
       this.streamKey = streamKey;
     });
+
+    ipcMain.handle('stream/media-chunk-desktop', async (_, chunk: ArrayBuffer) => {
+      this.desktopClient.sendChunk(Buffer.from(new Uint8Array(chunk)));
+    });
+
+    ipcMain.handle('stream/media-chunk-webcam', async (_, chunk: ArrayBuffer) => {
+      this.webcamClient.sendChunk(Buffer.from(new Uint8Array(chunk)));
+    });
   };
 
   getConnStatus = () => {
     const desktopClient = this.desktopClient.isStarted;
     const webcamClient = this.webcamClient.isStarted;
-    console.log('getConnStatus', this.desktopClient.isStarted, this.webcamClient.isStarted);
     return {
       desktop: desktopClient,
       webcam: webcamClient,

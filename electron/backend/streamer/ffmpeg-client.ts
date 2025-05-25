@@ -10,41 +10,49 @@ export type KeyValueType = {
   value: string | KeyValueType[];
 };
 
-export class GstreamerClient extends ExternalStreamer {
-  public readonly name = 'gstreamer';
-  public streamKey: string = '';
-
+export class FfmpegClient extends ExternalStreamer {
+  public readonly name = 'ffmpeg';
 
   public generateCommand = (): [string, string[]] => {
     const exePath = this.getExecutablePath();
     return [
       exePath,
       [
-        `-v`,
-        `fdsrc`,
-        `! matroskademux name=demux demux.video_0 ! vp8dec ! videoconvert`,
-        // `! qsvh264enc bitrate=${this._options.bitrate}`,
-        // `! x264enc bitrate=${Math.floor(this._options.bitrate / 2)} tune=zerolatency`,
-        `! nvh264enc bitrate=${1000}`,
-        `! h264parse ! video/x-h264,profile=high ! queue ! mux.`,
-        `wasapisrc ! audioconvert ! audioresample ! voaacenc bitrate=128000 ! queue ! mux.`,
-        `flvmux name=mux streamable=true ! queue `,
-        `! rtmpsink location=${this.streamKey}`,
+        `-re`,
+        `-f`,
+        `webm`,
+        `-i`,
+        `-`,
+        `-fflags nobuffer`,
+        `-flags low_delay`,
+        `-flush_packets 1`,
+        `-analyzeduration 0`,
+        `-probesize 32`,
+        `-pix_fmt yuv420p`,
+        `-c:v h264_qsv`,
+        `-preset veryfast`,
+        `-s 1280x720`,
+        `-r 30`,
+        `-rc cbr`,
+        `-b:v 3000k`,
+        `-maxrate 3000k`,
+        `-bufsize 3000k`,
+        `-g 10`,
+        `-keyint_min 10`,
+        `-sc_threshold 0`,
+        `-c:a aac`,
+        `-b:a 128k`,
+        `-f flv`,
+        `${this.streamKey}`,
       ].flatMap((v) => (Array.isArray(v) ? v : v.split(' '))),
     ];
   };
 
   private getExecutablePath = () => {
     if (isDev) {
-      return path.join(
-        app.getAppPath(),
-        'public/lib/gstreamer/1.0/msvc_x86_64/bin/gst-launch-1.0.exe'
-      );
+      return path.join(app.getAppPath(), 'public/lib/ffmpeg/bin/ffmpeg.exe');
     } else {
-      return path.join(
-        process.resourcesPath,
-        'lib/gstreamer/1.0/msvc_x86_64/bin/gst-launch-1.0.exe'
-      );
+      return path.join(process.resourcesPath, 'lib/ffmpeg/bin/ffmpeg.exe');
     }
   };
 
@@ -95,9 +103,5 @@ export class GstreamerClient extends ExternalStreamer {
         };
       }
     });
-  };
-
-  public setStreamKey = (key: string) => {
-    this.streamKey = key;
   };
 }

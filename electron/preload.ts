@@ -57,6 +57,9 @@ declare global {
 
       getStreamKey: () => Promise<string>;
       setStreamKey: (streamKey: string) => Promise<void>;
+
+      sendChunkDesktop: (chunk: ArrayBuffer) => Promise<void>;
+      sendChunkWebcam: (chunk: ArrayBuffer) => Promise<void>;
     };
   }
 }
@@ -89,6 +92,13 @@ contextBridge.exposeInMainWorld('stream', {
   getSourceWebcam: () => ipcRenderer.invoke('stream/get-source-webcam'),
   setSourceWebcam: async (sourceId: string) => {
     await ipcRenderer.invoke('stream/set-source-webcam', sourceId);
+  },
+
+  sendChunkDesktop: async (chunk: ArrayBuffer) => {
+    await ipcRenderer.invoke('stream/media-chunk-desktop', chunk);
+  },
+  sendChunkWebcam: async (chunk: ArrayBuffer) => {
+    await ipcRenderer.invoke('stream/media-chunk-webcam', chunk);
   },
 });
 

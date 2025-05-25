@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 export const StreamKeyInput = () => {
   const { setStreamKey: updateStreamKey } = useStreamActions();
-  const [streamKey, setStreamKey] = useState<string>('rtmp://localhost:1935');
+  const [streamKey, setStreamKey] = useState<string>('rtmp://localhost:1935/');
 
   useEffect(() => {
     updateStreamKey(streamKey);
