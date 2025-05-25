@@ -22,7 +22,7 @@ export class FfmpegClient extends ExternalStreamer {
         `-f`,
         `webm`,
         `-i`,
-        `-`,
+        `pipe:0`,
         `-fflags nobuffer`,
         `-flags low_delay`,
         `-flush_packets 1`,
