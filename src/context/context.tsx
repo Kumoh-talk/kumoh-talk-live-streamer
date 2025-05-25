@@ -1,3 +1,4 @@
+import { useAudio } from '@/hooks/useAudio';
 import { useCaptureSource } from '@/hooks/useCaptureSource';
 import { useStreamer } from '@/hooks/useStreamer';
 import { CaptureSource } from '@/types/capture';
@@ -12,6 +13,10 @@ export type Values = {
   readonly streamKey: string;
   readonly streamDesktop: MediaStream | null;
   readonly streamWebcam: MediaStream | null;
+
+  readonly gain: number;
+  readonly level: number;
+  readonly audioStream: MediaStream | null;
 };
 
 export type Actions = {
@@ -20,6 +25,8 @@ export type Actions = {
   readonly connect: () => Promise<void>;
   readonly disconnect: () => Promise<void>;
   readonly setStreamKey: (key: string) => Promise<void>;
+
+  readonly setGain: (gain: number) => void;
 };
 
 const StreamValueContext = createContext<Values | undefined>(undefined);
@@ -39,6 +46,7 @@ export const StreamProvider = (props: Props): React.ReactNode => {
     webcamSource,
     setWebcamSource,
   } = useCaptureSource();
+  const { gain, level, audioStream, setGain } = useAudio();
 
   const [streamDesktop, setStreamDesktop] = useState<MediaStream | null>(null);
   const [streamWebcam, setStreamWebcam] = useState<MediaStream | null>(null);
@@ -47,7 +55,7 @@ export const StreamProvider = (props: Props): React.ReactNode => {
     const startCapture = async () => {
       try {
         const stream = await navigator.mediaDevices.getDisplayMedia({
-          audio: true,
+          audio: false,
           video: {
             width: 1280,
             height: 720,
@@ -93,8 +101,9 @@ export const StreamProvider = (props: Props): React.ReactNode => {
       connect,
       disconnect,
       setStreamKey,
+      setGain,
     }),
-    [setDisplaySource, setWebcamSource, connect, disconnect, setStreamKey]
+    [setDisplaySource, setWebcamSource, connect, disconnect, setStreamKey, setGain]
   );
 
   return (
@@ -109,6 +118,9 @@ export const StreamProvider = (props: Props): React.ReactNode => {
           streamKey,
           streamDesktop,
           streamWebcam,
+          gain,
+          level,
+          audioStream,
         }}
       >
         {props.children}

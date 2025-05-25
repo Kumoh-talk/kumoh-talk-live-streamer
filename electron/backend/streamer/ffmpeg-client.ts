@@ -41,7 +41,7 @@ export class FfmpegClient extends ExternalStreamer {
         `-keyint_min 10`,
         `-sc_threshold 0`,
         `-c:a aac`,
-        `-b:a 128k`,
+        `-b:a 160k`,
         `-f flv`,
         `${this.streamKey}`,
       ].flatMap((v) => (Array.isArray(v) ? v : v.split(' '))),

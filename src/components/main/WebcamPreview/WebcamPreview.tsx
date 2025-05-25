@@ -30,7 +30,6 @@ export const WebcamPreview = () => {
           window.stream.sendChunkWebcam(buffer);
         };
         reader.readAsArrayBuffer(event.data);
-        console.log('화면 캡처 데이터 전송:', event.data);
       };
     }
   }, []);

@@ -5,9 +5,10 @@ export const VideoPreview = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const combinedStreamRef = useRef<MediaStream | null>(null);
   const [recorder, setRecorder] = useState<MediaRecorder | null>(null);
 
-  const { connStatus, streamDesktop } = useStreamValue();
+  const { connStatus, streamDesktop, audioStream } = useStreamValue();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -19,10 +20,19 @@ export const VideoPreview = () => {
       }
       ctxRef.current = ctx;
       const canvasStream = canvas.captureStream(30);
+      if (audioStream) {
+        const audioTracks = audioStream.getAudioTracks();
+        if (audioTracks.length > 0) {
+          canvasStream.addTrack(audioTracks[0]);
+        }
+      }
       const newRecorder = new MediaRecorder(canvasStream, {
         mimeType: 'video/webm; codecs=vp8,opus',
       });
+
+      combinedStreamRef.current = canvasStream;
       setRecorder(newRecorder);
+
       newRecorder.ondataavailable = (event: BlobEvent) => {
         const reader = new FileReader();
         reader.onload = () => {
@@ -30,13 +40,13 @@ export const VideoPreview = () => {
           window.stream.sendChunkDesktop(buffer);
         };
         reader.readAsArrayBuffer(event.data);
-        console.log('화면 캡처 데이터 전송:', event.data);
       };
     }
-  }, []);
+  }, [audioStream]);
 
   useEffect(() => {
     if (!streamDesktop) return;
+
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
@@ -44,6 +54,7 @@ export const VideoPreview = () => {
       video.srcObject = streamDesktop;
       video.play();
     }
+
     const captureLoop = () => {
       if (video && ctx && canvas) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -67,7 +78,13 @@ export const VideoPreview = () => {
   return (
     <div className="h-full aspect-video bg-black">
       <canvas ref={canvasRef} className="h-full aspect-video bg-black" />
-      <video ref={videoRef} autoPlay playsInline className="h-full aspect-video bg-black hidden" muted />
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        className="h-full aspect-video bg-black hidden"
+        muted
+      />
     </div>
   );
 };
