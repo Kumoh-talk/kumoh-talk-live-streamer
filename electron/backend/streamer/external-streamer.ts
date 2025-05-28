@@ -1,6 +1,6 @@
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import { VideoCaptureOptions, VideoCaptureRtpParams } from '../types';
+import { VideoCaptureOptions } from '../types';
 
 export type ExternalStreamerStats = {
   frameSent: number;
@@ -34,16 +34,16 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
   }
 
   protected _options: VideoCaptureOptions = {
-    device: {
-      type: 'camera',
-      name: 'OBS Virtual Camera',
-    },
+    videoCodec: 'libx264',
+    videoPreset: 'veryfast',
     resolution: {
-      width: 1920,
-      height: 1080,
-      frameRate: 60,
+      width: 1280,
+      height: 720,
+      frameRate: 30,
     },
-    bitrate: 6000,
+    videoBitrate: 3000,
+    audioCodec: 'aac',
+    audioBitrate: 160,
   };
   public get options() {
     return this._options;
@@ -57,9 +57,9 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
     timestamp: 0,
   };
 
-  public start = async (rtp: VideoCaptureRtpParams) => {
+  public start = async () => {
     await this.stop();
-    const [command, args] = this.generateCommand(rtp);
+    const [command, args] = this.generateCommand();
     console.log(command, args.join(' '));
     const client = spawn(command, args).on('error', function (err) {
       console.log(err);
@@ -88,6 +88,10 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
     this.stream = client;
   };
 
+  protected abstract generateCommand: () => [string, string[]];
+
+  protected abstract parseStats: (data: string) => ExternalStreamerStats | null;
+
   public stop = async () => {
     if (this.stream !== null) {
       this.stream.kill('SIGTERM');
@@ -96,21 +100,6 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
       }
       await this.waitForStop();
     }
-  };
-
-  public setDevice = (type: 'screen' | 'camera' | 'window', device: string) => {
-    this._options.device = {
-      type,
-      name: device,
-    };
-  };
-
-  public setResolution = (width: number, height: number, frameRate: number) => {
-    this._options.resolution = { width, height, frameRate };
-  };
-
-  public setBitrate = (bitrate: number) => {
-    this._options.bitrate = bitrate;
   };
 
   protected waitForStop = async () => {
@@ -124,10 +113,6 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
     });
   };
 
-  public setStreamKey = (key: string) => {
-    this.streamKey = key;
-  };
-
   public sendChunk = (chunk: Buffer) => {
     try {
       this.stream?.stdin.write(chunk);
@@ -136,7 +121,29 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
     }
   };
 
-  protected abstract generateCommand: (rtp: VideoCaptureRtpParams) => [string, string[]];
+  public setStreamKey = (key: string) => {
+    this.streamKey = key;
+  };
 
-  protected abstract parseStats: (data: string) => ExternalStreamerStats | null;
+  public setVideoCodec = (videoCodec: string, videoPreset: string) => {
+    this._options.videoCodec = videoCodec;
+    this._options.videoPreset = videoPreset;
+  };
+
+  public setResolution = (width: number, height: number, frameRate: number) => {
+    this._options.resolution = { width, height, frameRate };
+  };
+
+  public setVideoBitrate = (bitrate: number) => {
+    this._options.videoBitrate = bitrate;
+  };
+
+  public setAudioCodec = (audioCodec: string, audioBitrate: number) => {
+    this._options.audioCodec = audioCodec;
+    this._options.audioBitrate = audioBitrate;
+  };
+
+  public setAudioBitrate = (bitrate: number) => {
+    this._options.audioBitrate = bitrate;
+  };
 }

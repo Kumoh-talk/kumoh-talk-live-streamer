@@ -1,22 +1,14 @@
-/* videoCapture */
-export type VideoCaptureRtpParams = {
-  ssrc: number;
-  ipAddress: string;
-  rtpPort: number;
-  rtcpPort: number;
-};
-
 export type VideoCaptureOptions = {
-  device: {
-    type: 'screen' | 'camera' | 'window';
-    name: string;
-  };
+  videoCodec: string;
+  videoPreset: string;
   resolution: {
     width: number;
     height: number;
     frameRate: number;
   };
-  bitrate: number;
+  videoBitrate: number;
+  audioCodec: string;
+  audioBitrate: number;
 };
 
 export type StreamType = 'desktop' | 'webcam';

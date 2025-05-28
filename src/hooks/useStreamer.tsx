@@ -29,7 +29,7 @@ export const useStreamer = () => {
   }
   const setStreamKey = async (key: string) => {
     // TODO: connect 상태에서 변경시 disconnect 후 재연결
-    await window.stream.setStreamKey(key);
+    await window.options.setStreamKey(key);
     _setStreamKey(key);
   }
 

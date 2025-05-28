@@ -1,13 +1,7 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { FfmpegClient } from './ffmpeg-client';
 import { ExternalStreamer } from './external-streamer';
-
-const dummyRtp = {
-  ssrc: 1,
-  ipAddress: 'string',
-  rtpPort: 1,
-  rtcpPort: 1,
-};
+import { StreamType } from '../types';
 
 export class StreamClient {
   private win: BrowserWindow;
@@ -47,15 +41,12 @@ export class StreamClient {
     this.desktopClient.on('stop', this.sendConnStatus);
     this.webcamClient.on('stop', this.sendConnStatus);
 
-    ipcMain.handle('stream/set-source-desktop', async (_, deviceName: string) => {
-      const [type, id] = deviceName.split(':');
-      console.log('set-source-desktop', type, id);
-      this.desktopClient.setDevice(type as 'window' | 'screen', id);
+    ipcMain.handle('stream/media-chunk-desktop', async (_, chunk: ArrayBuffer) => {
+      this.desktopClient.sendChunk(Buffer.from(new Uint8Array(chunk)));
     });
 
-    ipcMain.handle('stream/set-source-webcam', async (_, deviceName: string) => {
-      const converted = deviceName.split(' (')[0];
-      this.webcamClient.setDevice('camera', converted);
+    ipcMain.handle('stream/media-chunk-webcam', async (_, chunk: ArrayBuffer) => {
+      this.webcamClient.sendChunk(Buffer.from(new Uint8Array(chunk)));
     });
 
     ipcMain.handle('stream/get-stream-key', async () => {
@@ -65,12 +56,68 @@ export class StreamClient {
       this.streamKey = streamKey;
     });
 
-    ipcMain.handle('stream/media-chunk-desktop', async (_, chunk: ArrayBuffer) => {
-      this.desktopClient.sendChunk(Buffer.from(new Uint8Array(chunk)));
+    ipcMain.handle('stream/get-video-codec', async () => {
+      return {
+        codec: this.desktopClient.options.videoCodec,
+        preset: this.desktopClient.options.videoPreset,
+      };
     });
-
-    ipcMain.handle('stream/media-chunk-webcam', async (_, chunk: ArrayBuffer) => {
-      this.webcamClient.sendChunk(Buffer.from(new Uint8Array(chunk)));
+    ipcMain.handle('stream/set-video-codec', async (_, videoCodec: string, videoPreset: string) => {
+      this.desktopClient.options.videoCodec = videoCodec;
+      this.desktopClient.options.videoPreset = videoPreset;
+      this.webcamClient.options.videoCodec = videoCodec;
+      this.webcamClient.options.videoPreset = videoPreset;
+    });
+    ipcMain.handle('stream/get-resolution', async (_, streamType: StreamType) => {
+      if (streamType === 'desktop') {
+        return this.desktopClient.options.resolution;
+      }
+      return this.webcamClient.options.resolution;
+    });
+    ipcMain.handle(
+      'stream/set-resolution',
+      async (_, streamType: StreamType, width: number, height: number, frameRate: number) => {
+        if (streamType === 'desktop') {
+          this.desktopClient.options.resolution = { width, height, frameRate };
+        } else {
+          this.webcamClient.options.resolution = { width, height, frameRate };
+        }
+      }
+    );
+    ipcMain.handle('stream/get-video-bitrate', async (_, streamType: StreamType) => {
+      if (streamType === 'desktop') {
+        return this.desktopClient.options.videoBitrate;
+      }
+      return this.webcamClient.options.videoBitrate;
+    });
+    ipcMain.handle(
+      'stream/set-video-bitrate',
+      async (_, streamType: StreamType, bitrate: number) => {
+        if (streamType === 'desktop') {
+          this.desktopClient.options.videoBitrate = bitrate;
+        } else {
+          this.webcamClient.options.videoBitrate = bitrate;
+        }
+      }
+    );
+    ipcMain.handle('stream/get-audio-codec', async () => {
+      return this.desktopClient.options.audioCodec;
+    });
+    ipcMain.handle(
+      'stream/set-audio-codec',
+      async (_, audioCodec: string, audioBitrate: number) => {
+        this.desktopClient.options.audioCodec = audioCodec;
+        this.desktopClient.options.audioBitrate = audioBitrate;
+        this.webcamClient.options.audioCodec = audioCodec;
+        this.webcamClient.options.audioBitrate = audioBitrate;
+      }
+    );
+    ipcMain.handle('stream/get-audio-bitrate', async () => {
+      return this.desktopClient.options.audioBitrate;
+    });
+    ipcMain.handle('stream/set-audio-bitrate', async (_, bitrate: number) => {
+      this.desktopClient.options.audioBitrate = bitrate;
+      this.webcamClient.options.audioBitrate = bitrate;
     });
   };
 
@@ -89,10 +136,10 @@ export class StreamClient {
 
   start = () => {
     if (!this.desktopClient.isStarted) {
-      this.desktopClient.start(dummyRtp);
+      this.desktopClient.start();
     }
     if (!this.webcamClient.isStarted) {
-      this.webcamClient.start(dummyRtp);
+      this.webcamClient.start();
     }
   };
 

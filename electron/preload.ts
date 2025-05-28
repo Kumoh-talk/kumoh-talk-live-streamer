@@ -50,16 +50,29 @@ declare global {
         listener: (event: Electron.IpcRendererEvent, status: Record<StreamType, boolean>) => void
       ) => void;
 
-      getSourceDesktop: () => Promise<string>;
-      setSourceDesktop: (sourceId: string) => Promise<void>;
-      setSourceWebcam: (sourceId: string) => Promise<void>;
-      getSourceWebcam: () => Promise<string>;
-
+      sendChunk: (streamType: StreamType, chunk: ArrayBuffer) => Promise<void>;
+    };
+    options: {
       getStreamKey: () => Promise<string>;
       setStreamKey: (streamKey: string) => Promise<void>;
 
-      sendChunkDesktop: (chunk: ArrayBuffer) => Promise<void>;
-      sendChunkWebcam: (chunk: ArrayBuffer) => Promise<void>;
+      getVideoCodec: () => Promise<{ codec: string; preset: string }>;
+      setVideoCodec: (videoCodec: string, videoPreset: string) => Promise<void>;
+      getResolution: (
+        streamType: StreamType
+      ) => Promise<{ width: number; height: number; frameRate: number }>;
+      setResolution: (
+        streamType: StreamType,
+        width: number,
+        height: number,
+        frameRate: number
+      ) => Promise<void>;
+      getVideoBitrate: (streamType: StreamType) => Promise<number>;
+      setVideoBitrate: (streamType: StreamType, bitrate: number) => Promise<void>;
+      getAudioCodec: () => Promise<string>;
+      setAudioCodec: (audioCodec: string, audioBitrate: number) => Promise<void>;
+      getAudioBitrate: () => Promise<number>;
+      setAudioBitrate: (bitrate: number) => Promise<void>;
     };
   }
 }
@@ -80,25 +93,43 @@ contextBridge.exposeInMainWorld('stream', {
     ipcRenderer.off('stream/on-connection-status', listener);
   },
 
+  sendChunk: async (streamType: StreamType, chunk: ArrayBuffer) => {
+    await ipcRenderer.invoke(`stream/media-chunk-${streamType}`, chunk);
+  },
+});
+
+contextBridge.exposeInMainWorld('options', {
   getStreamKey: () => ipcRenderer.invoke('stream/get-stream-key'),
   setStreamKey: async (streamKey: string) => {
     await ipcRenderer.invoke('stream/set-stream-key', streamKey);
   },
 
-  getSourceDesktop: () => ipcRenderer.invoke('stream/get-source-desktop'),
-  setSourceDesktop: async (sourceId: string) => {
-    await ipcRenderer.invoke('stream/set-source-desktop', sourceId);
+  getVideoCodec: () => ipcRenderer.invoke('stream/get-video-codec'),
+  setVideoCodec: async (videoCodec: string, videoPreset: string) => {
+    await ipcRenderer.invoke('stream/set-video-codec', videoCodec, videoPreset);
   },
-  getSourceWebcam: () => ipcRenderer.invoke('stream/get-source-webcam'),
-  setSourceWebcam: async (sourceId: string) => {
-    await ipcRenderer.invoke('stream/set-source-webcam', sourceId);
+  getResolution: (streamType: StreamType) =>
+    ipcRenderer.invoke('stream/get-resolution', streamType),
+  setResolution: async (
+    streamType: StreamType,
+    width: number,
+    height: number,
+    frameRate: number
+  ) => {
+    await ipcRenderer.invoke('stream/set-resolution', streamType, width, height, frameRate);
   },
-
-  sendChunkDesktop: async (chunk: ArrayBuffer) => {
-    await ipcRenderer.invoke('stream/media-chunk-desktop', chunk);
+  getVideoBitrate: (streamType: StreamType) =>
+    ipcRenderer.invoke('stream/get-video-bitrate', streamType),
+  setVideoBitrate: async (streamType: StreamType, bitrate: number) => {
+    await ipcRenderer.invoke('stream/set-video-bitrate', streamType, bitrate);
   },
-  sendChunkWebcam: async (chunk: ArrayBuffer) => {
-    await ipcRenderer.invoke('stream/media-chunk-webcam', chunk);
+  getAudioCodec: () => ipcRenderer.invoke('stream/get-audio-codec'),
+  setAudioCodec: async (audioCodec: string, audioBitrate: number) => {
+    await ipcRenderer.invoke('stream/set-audio-codec', audioCodec, audioBitrate);
+  },
+  getAudioBitrate: () => ipcRenderer.invoke('stream/get-audio-bitrate'),
+  setAudioBitrate: async (bitrate: number) => {
+    await ipcRenderer.invoke('stream/set-audio-bitrate', bitrate);
   },
 });
 

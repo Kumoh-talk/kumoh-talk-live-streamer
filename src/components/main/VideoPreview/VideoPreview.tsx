@@ -37,7 +37,7 @@ export const VideoPreview = () => {
         const reader = new FileReader();
         reader.onload = () => {
           const buffer = reader.result as ArrayBuffer;
-          window.stream.sendChunkDesktop(buffer);
+          window.stream.sendChunk('desktop', buffer);
         };
         reader.readAsArrayBuffer(event.data);
       };

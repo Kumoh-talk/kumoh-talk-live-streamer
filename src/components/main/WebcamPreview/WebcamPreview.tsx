@@ -27,13 +27,13 @@ export const WebcamPreview = () => {
         const reader = new FileReader();
         reader.onload = () => {
           const buffer = reader.result as ArrayBuffer;
-          window.stream.sendChunkWebcam(buffer);
+          window.stream.sendChunk('webcam', buffer);
         };
         reader.readAsArrayBuffer(event.data);
       };
     }
   }, []);
-  
+
   useEffect(() => {
     if (!streamWebcam) return;
     const video = videoRef.current;
