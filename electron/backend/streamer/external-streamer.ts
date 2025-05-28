@@ -79,6 +79,7 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
     };
     client.stdout.on('data', stdHandler);
     client.stderr.on('data', stdHandler);
+    client.stdin.on('error', stdHandler);
 
     client.on('close', (code) => {
       console.log(`${this.name} process exited with code ${code}`);
@@ -90,6 +91,9 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
   public stop = async () => {
     if (this.stream !== null) {
       this.stream.kill('SIGTERM');
+      if (!this.stream.stdin.destroyed) {
+        this.stream.stdin.end();
+      }
       await this.waitForStop();
     }
   };
@@ -125,7 +129,11 @@ export abstract class ExternalStreamer extends TypedEmitter<ExternalStreamerEven
   };
 
   public sendChunk = (chunk: Buffer) => {
-    this.stream?.stdin.write(chunk);
+    try {
+      this.stream?.stdin.write(chunk);
+    } catch (error) {
+      console.error(`Error sending chunk to ${this.name}:`, error);
+    }
   };
 
   protected abstract generateCommand: (rtp: VideoCaptureRtpParams) => [string, string[]];
