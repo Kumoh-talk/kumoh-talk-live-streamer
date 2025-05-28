@@ -5,3 +5,4 @@ export { DeviceSelect } from './DeviceSelect/DeviceSelect';
 export { Footer } from './Footer/Footer';
 export { ControlSection } from './ControlSection/ControlSection';
 export { StreamKeyInput } from './StreamKeyInput/StreamKeyInput';
+export { SettingPanel } from './SettingPanel/SettingPanel';

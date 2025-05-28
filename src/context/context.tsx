@@ -1,6 +1,7 @@
 import { useAudio } from '@/hooks/useAudio';
 import { useCaptureSource } from '@/hooks/useCaptureSource';
 import { useStreamer } from '@/hooks/useStreamer';
+import { useStreamerOptions } from '@/hooks/useStreamerOptions';
 import { CaptureSource } from '@/types/capture';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
@@ -14,6 +15,14 @@ export type Values = {
   readonly streamDesktop: MediaStream | null;
   readonly streamWebcam: MediaStream | null;
 
+  readonly videoCodec: { codec: string; preset: string };
+  readonly videoDesktopResolution: { width: number; height: number; frameRate: number };
+  readonly videoWebcamResolution: { width: number; height: number; frameRate: number };
+  readonly videoDesktopBitrate: number;
+  readonly videoWebcamBitrate: number;
+  readonly audioCodec: string;
+  readonly audioBitrate: number;
+
   readonly gain: number;
   readonly level: number;
   readonly audioStream: MediaStream | null;
@@ -25,6 +34,22 @@ export type Actions = {
   readonly connect: () => Promise<void>;
   readonly disconnect: () => Promise<void>;
   readonly setStreamKey: (key: string) => Promise<void>;
+
+  readonly setVideoCodec: (codec: string, preset: string) => Promise<void>;
+  readonly setVideoDesktopResolution: (
+    width: number,
+    height: number,
+    frameRate: number
+  ) => Promise<void>;
+  readonly setVideoWebcamResolution: (
+    width: number,
+    height: number,
+    frameRate: number
+  ) => Promise<void>;
+  readonly setVideoDesktopBitrate: (bitrate: number) => Promise<void>;
+  readonly setVideoWebcamBitrate: (bitrate: number) => Promise<void>;
+  readonly setAudioCodec: (codec: string, bitrate: number) => Promise<void>;
+  readonly setAudioBitrate: (bitrate: number) => Promise<void>;
 
   readonly setGain: (gain: number) => void;
 };
@@ -38,6 +63,22 @@ type Props = {
 
 export const StreamProvider = (props: Props): React.ReactNode => {
   const { connect, disconnect, connStatus, streamKey, setStreamKey } = useStreamer();
+  const {
+    videoCodec,
+    setVideoCodec,
+    videoDesktopResolution,
+    setVideoDesktopResolution,
+    videoWebcamResolution,
+    setVideoWebcamResolution,
+    videoDesktopBitrate,
+    videoWebcamBitrate,
+    setVideoDesktopBitrate,
+    setVideoWebcamBitrate,
+    audioCodec,
+    setAudioCodec,
+    audioBitrate,
+    setAudioBitrate,
+  } = useStreamerOptions();
   const {
     displaySources,
     displaySource,
@@ -94,6 +135,10 @@ export const StreamProvider = (props: Props): React.ReactNode => {
     startCapture();
   }, [webcamSource]);
 
+  useEffect(() => {
+    setStreamKey('rtmp://localhost:1935/');
+  }, []);
+
   const actions: Actions = useMemo(
     () => ({
       setDisplaySource,
@@ -101,9 +146,32 @@ export const StreamProvider = (props: Props): React.ReactNode => {
       connect,
       disconnect,
       setStreamKey,
+
+      setVideoCodec,
+      setVideoDesktopResolution,
+      setVideoWebcamResolution,
+      setVideoDesktopBitrate,
+      setVideoWebcamBitrate,
+      setAudioCodec,
+      setAudioBitrate,
+
       setGain,
     }),
-    [setDisplaySource, setWebcamSource, connect, disconnect, setStreamKey, setGain]
+    [
+      setDisplaySource,
+      setWebcamSource,
+      connect,
+      disconnect,
+      setStreamKey,
+      setVideoCodec,
+      setVideoDesktopResolution,
+      setVideoWebcamResolution,
+      setVideoDesktopBitrate,
+      setVideoWebcamBitrate,
+      setAudioCodec,
+      setAudioBitrate,
+      setGain,
+    ]
   );
 
   return (
@@ -118,6 +186,15 @@ export const StreamProvider = (props: Props): React.ReactNode => {
           streamKey,
           streamDesktop,
           streamWebcam,
+
+          videoCodec,
+          videoDesktopResolution,
+          videoWebcamResolution,
+          videoDesktopBitrate,
+          videoWebcamBitrate,
+          audioCodec,
+          audioBitrate,
+
           gain,
           level,
           audioStream,

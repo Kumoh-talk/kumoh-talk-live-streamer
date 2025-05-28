@@ -1,13 +1,8 @@
-import { useStreamActions } from '@/context/context';
-import { useEffect, useState } from 'react';
+import { useStreamActions, useStreamValue } from '@/context/context';
 
 export const StreamKeyInput = () => {
-  const { setStreamKey: updateStreamKey } = useStreamActions();
-  const [streamKey, setStreamKey] = useState<string>('rtmp://localhost:1935/');
-
-  useEffect(() => {
-    updateStreamKey(streamKey);
-  }, [streamKey]);
+  const { streamKey } = useStreamValue();
+  const { setStreamKey } = useStreamActions();
 
   return (
     <div className="flex flex-col gap-2">
