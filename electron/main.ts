@@ -28,6 +28,7 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.mjs'),
+      backgroundThrottling: false,
     },
   });
 
