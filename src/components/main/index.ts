@@ -6,3 +6,5 @@ export { Footer } from './Footer/Footer';
 export { ControlSection } from './ControlSection/ControlSection';
 export { StreamKeyInput } from './StreamKeyInput/StreamKeyInput';
 export { SettingPanel } from './SettingPanel/SettingPanel';
+export { ChatPanel } from './ChatPanel/ChatPanel';
+export { QnaPanel } from './QnaPanel/QnaPanel';

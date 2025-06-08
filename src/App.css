@@ -57,3 +57,16 @@ input[type='range'].tiny::-webkit-slider-thumb {
   width: 8px;
   box-shadow: -1284px 0 0 1280px #00a3ff;
 }
+*::-webkit-scrollbar {
+  width: 12px;
+  padding: 4px 0;
+}
+*::-webkit-scrollbar-button {
+  display: none;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  background-clip: padding-box;
+  border: 3.5px solid transparent;
+  border-radius: 7px;
+}

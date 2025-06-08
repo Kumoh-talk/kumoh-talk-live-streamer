@@ -5,6 +5,8 @@ import {
   WebcamPreview,
   Footer,
   ControlSection,
+  ChatPanel,
+  QnaPanel,
 } from '@/components/main';
 import { StreamProvider } from '@/context/context';
 
@@ -13,11 +15,11 @@ export const MainPage = () => {
     <StreamProvider>
       <div className="flex flex-col gap-2 p-2 h-dvh w-dvw bg-gray-100">
         <section className="flex flex-row gap-2 items-stretch flex-1 h-0">
-          <div className="chat flex-1 w-0 bg-white rounded-lg">chat</div>
+          <ChatPanel />
           <div className="main-preview w-fit bg-white rounded-lg overflow-hidden">
             <VideoPreview />
           </div>
-          <div className="poll flex-1 w-0 bg-white rounded-lg">poll</div>
+          <QnaPanel />
         </section>
         <section className="flex flex-row gap-2 h-80">
           <div className="flex flex-col items-stretch w-[423px] p-2 gap-2 bg-white rounded-lg">
