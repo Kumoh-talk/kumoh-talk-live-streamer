@@ -2,10 +2,12 @@ import { app, BrowserWindow, desktopCapturer, session, ipcMain } from 'electron'
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { loadBackend } from './backend/loader';
-
+import * as dotenv from 'dotenv';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+dotenv.config();
 process.env.APP_ROOT = path.join(__dirname, '..');
+
 let selectedSourceId: string | null = null;
 
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
