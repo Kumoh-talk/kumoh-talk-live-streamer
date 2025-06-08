@@ -53,6 +53,11 @@ declare global {
       sendChunk: (streamType: StreamType, chunk: ArrayBuffer) => Promise<void>;
     };
     options: {
+      openLoginPopup: (provider: string) => Promise<{
+        accessToken: string;
+        refreshToken: string;
+      }>;
+
       getStreamKey: () => Promise<string>;
       setStreamKey: (streamKey: string) => Promise<void>;
 
@@ -99,6 +104,8 @@ contextBridge.exposeInMainWorld('stream', {
 });
 
 contextBridge.exposeInMainWorld('options', {
+  openLoginPopup: (provider: string) => ipcRenderer.invoke('options/open-login-popup', provider),
+
   getStreamKey: () => ipcRenderer.invoke('stream/get-stream-key'),
   setStreamKey: async (streamKey: string) => {
     await ipcRenderer.invoke('stream/set-stream-key', streamKey);
