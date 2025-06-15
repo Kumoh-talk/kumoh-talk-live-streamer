@@ -8,3 +8,4 @@ export { StreamKeyInput } from './StreamKeyInput/StreamKeyInput';
 export { SettingPanel } from './SettingPanel/SettingPanel';
 export { ChatPanel } from './ChatPanel/ChatPanel';
 export { QnaPanel } from './QnaPanel/QnaPanel';
+export { TitleInput } from './TitleInput/TitleInput';

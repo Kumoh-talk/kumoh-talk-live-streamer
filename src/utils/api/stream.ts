@@ -41,7 +41,6 @@ export const getStreamKeys = async () => {
 export const createStreamKey = async () => {
   const url = `/stream/streamKey`;
   const res = await api<CreateStreamKeyResponse>(url, 'POST');
-  console.log(res);
   if ('success' in res && res.success) {
     return res.data.streamKey;
   }

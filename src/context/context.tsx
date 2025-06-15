@@ -15,6 +15,8 @@ export type Values = {
   readonly webcamSources: CaptureSource[];
   readonly connStatus: Record<string, boolean>;
   readonly streamKey: string;
+  readonly streamId: number;
+  readonly title: string;
   readonly streamDesktop: MediaStream | null;
   readonly streamWebcam: MediaStream | null;
 
@@ -42,6 +44,7 @@ export type Actions = {
   readonly connect: () => Promise<void>;
   readonly disconnect: () => Promise<void>;
   readonly setStreamKey: (key: string) => Promise<void>;
+  readonly setTitle: (title: string) => void;
 
   readonly setVideoCodec: (codec: string, preset: string) => Promise<void>;
   readonly setVideoDesktopResolution: (
@@ -73,7 +76,8 @@ type Props = {
 };
 
 export const StreamProvider = (props: Props): React.ReactNode => {
-  const { connect, disconnect, connStatus, streamKey, setStreamKey } = useStreamer();
+  const { connect, disconnect, connStatus, streamKey, setStreamKey, title, setTitle, streamId } =
+    useStreamer();
   const {
     videoCodec,
     setVideoCodec,
@@ -176,6 +180,7 @@ export const StreamProvider = (props: Props): React.ReactNode => {
       connect,
       disconnect,
       setStreamKey,
+      setTitle,
 
       setVideoCodec,
       setVideoDesktopResolution,
@@ -196,6 +201,7 @@ export const StreamProvider = (props: Props): React.ReactNode => {
       connect,
       disconnect,
       setStreamKey,
+      setTitle,
       setVideoCodec,
       setVideoDesktopResolution,
       setVideoWebcamResolution,
@@ -219,6 +225,8 @@ export const StreamProvider = (props: Props): React.ReactNode => {
           webcamSource,
           connStatus,
           streamKey,
+          streamId,
+          title,
           streamDesktop,
           streamWebcam,
 
