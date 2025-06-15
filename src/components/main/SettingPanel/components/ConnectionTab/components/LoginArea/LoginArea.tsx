@@ -22,7 +22,7 @@ const logins = [
 ];
 
 export const LoginArea = () => {
-  const { accessToken } = useStreamValue();
+  const { accessToken, streamKey } = useStreamValue();
   const { handleLogin, logout } = useStreamActions();
 
   const onLogin = (result: { accessToken: string; refreshToken: string }) => {
@@ -32,7 +32,7 @@ export const LoginArea = () => {
   return (
     <InputForm label="계정">
       {accessToken ? (
-        <Logined accessToken={accessToken} onLogout={logout} />
+        <Logined accessToken={accessToken} streamKey={streamKey} onLogout={logout} />
       ) : (
         <Logouted onLogin={onLogin} />
       )}
@@ -42,6 +42,7 @@ export const LoginArea = () => {
 
 interface LoginedProps {
   accessToken: string;
+  streamKey: string;
   onLogout: () => void;
 }
 const Logined = (props: LoginedProps) => {
@@ -49,15 +50,16 @@ const Logined = (props: LoginedProps) => {
   if (!decoded) {
     console.error('Invalid token');
     return (
-      <div className="flex flex-col py-1">
+      <div className="flex flex-col py-1.5">
         <span>로그인을 실패했습니다.</span>
         <Button onClick={props.onLogout}>다시 시도하기</Button>
       </div>
     );
   }
   return (
-    <div className="flex flex-col py-1">
+    <div className="flex flex-col gap-1 py-1.5">
       <span>닉네임: {decoded.USER_NICKNAME}</span>
+      <span>스트림키: {props.streamKey}</span>
       <Button onClick={props.onLogout}>로그아웃</Button>
     </div>
   );

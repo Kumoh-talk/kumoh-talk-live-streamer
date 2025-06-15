@@ -4,6 +4,7 @@ import { useCaptureSource } from '@/hooks/useCaptureSource';
 import { useStreamer } from '@/hooks/useStreamer';
 import { useStreamerOptions } from '@/hooks/useStreamerOptions';
 import { CaptureSource } from '@/types/capture';
+import { createStreamKey } from '@/utils/api/stream';
 import useSocketStore, { SocketStore } from '@/utils/stores/socketStore';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
@@ -148,6 +149,25 @@ export const StreamProvider = (props: Props): React.ReactNode => {
     };
     startCapture();
   }, [webcamSource]);
+
+  useEffect(() => {
+    const fetchStreamKey = async () => {
+      try {
+        const key = await createStreamKey();
+        setStreamKey(key);
+      } catch (err) {
+        console.error('스트림 키를 가져오는 데 실패했습니다:', err);
+      }
+    };
+
+    if (accessToken && !streamKey) {
+      fetchStreamKey();
+    }
+    if (!accessToken && streamKey) {
+      // 로그아웃시 스트림 키 초기화
+      setStreamKey('');
+    }
+  }, [accessToken, streamKey, setStreamKey]);
 
   const actions: Actions = useMemo(
     () => ({
