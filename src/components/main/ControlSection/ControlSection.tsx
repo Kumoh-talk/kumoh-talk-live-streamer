@@ -1,11 +1,12 @@
 import clsx from 'clsx';
 import { Button } from '@/components/common';
-import { useStreamer } from '@/hooks/useStreamer';
 import { SettingPanel } from '..';
 import { useState } from 'react';
+import { useStreamActions, useStreamValue } from '@/context/context';
 
 export const ControlSection = () => {
-  const { connect, disconnect, connStatus } = useStreamer();
+  const { connect, disconnect } = useStreamActions();
+  const { connStatus } = useStreamValue();
   const [isOpenedSettings, setIsOpenedSettings] = useState(false);
 
   const isConnected = connStatus.desktop || connStatus.webcam;
