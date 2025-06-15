@@ -12,8 +12,8 @@ export class StreamClient {
   private _streamKey: string = '';
   private set streamKey(value: string) {
     this._streamKey = value;
-    this.desktopClient.setStreamKey(this._streamKey + '_desktop');
-    this.webcamClient.setStreamKey(this._streamKey + '_webcam');
+    this.desktopClient.setStreamKey(`${process.env.RTMP_URL}/live/${this._streamKey}_desktop`);
+    this.webcamClient.setStreamKey(`${process.env.RTMP_URL}/live/${this._streamKey}_webcam`);
   }
 
   constructor(win: BrowserWindow) {
