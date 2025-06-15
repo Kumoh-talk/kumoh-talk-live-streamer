@@ -6,7 +6,7 @@ import { useStreamActions, useStreamValue } from '@/context/context';
 
 export const ControlSection = () => {
   const { connect, disconnect } = useStreamActions();
-  const { connStatus } = useStreamValue();
+  const { connStatus, streamKey } = useStreamValue();
   const [isOpenedSettings, setIsOpenedSettings] = useState(false);
 
   const isConnected = connStatus.desktop || connStatus.webcam;
@@ -15,6 +15,7 @@ export const ControlSection = () => {
       <Button
         className={clsx({ 'bg-blue-500 text-white': isConnected })}
         onClick={isConnected ? disconnect : connect}
+        disabled={!streamKey || streamKey.length === 0}
       >
         {isConnected ? '방송 종료' : '방송 시작'}
       </Button>
