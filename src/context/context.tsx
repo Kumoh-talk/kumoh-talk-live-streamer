@@ -1,4 +1,5 @@
 import { useAudio } from '@/hooks/useAudio';
+import { useAuth } from '@/hooks/useAuth';
 import { useCaptureSource } from '@/hooks/useCaptureSource';
 import { useStreamer } from '@/hooks/useStreamer';
 import { useStreamerOptions } from '@/hooks/useStreamerOptions';
@@ -26,6 +27,9 @@ export type Values = {
   readonly gain: number;
   readonly level: number;
   readonly audioStream: MediaStream | null;
+
+  readonly accessToken?: string;
+  readonly refreshToken?: string;
 };
 
 export type Actions = {
@@ -52,6 +56,9 @@ export type Actions = {
   readonly setAudioBitrate: (bitrate: number) => Promise<void>;
 
   readonly setGain: (gain: number) => void;
+
+  readonly handleLogin: (accessToken: string, refreshToken: string) => void;
+  readonly logout: () => void;
 };
 
 const StreamValueContext = createContext<Values | undefined>(undefined);
@@ -91,6 +98,8 @@ export const StreamProvider = (props: Props): React.ReactNode => {
 
   const [streamDesktop, setStreamDesktop] = useState<MediaStream | null>(null);
   const [streamWebcam, setStreamWebcam] = useState<MediaStream | null>(null);
+
+  const { accessToken, refreshToken, handleLogin, logout } = useAuth();
 
   useEffect(() => {
     const startCapture = async () => {
@@ -156,6 +165,9 @@ export const StreamProvider = (props: Props): React.ReactNode => {
       setAudioBitrate,
 
       setGain,
+
+      handleLogin,
+      logout,
     }),
     [
       setDisplaySource,
@@ -171,6 +183,8 @@ export const StreamProvider = (props: Props): React.ReactNode => {
       setAudioCodec,
       setAudioBitrate,
       setGain,
+      handleLogin,
+      logout,
     ]
   );
 
@@ -198,6 +212,9 @@ export const StreamProvider = (props: Props): React.ReactNode => {
           gain,
           level,
           audioStream,
+
+          accessToken,
+          refreshToken,
         }}
       >
         {props.children}
