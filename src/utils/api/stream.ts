@@ -1,6 +1,6 @@
 import { Streaming } from '@/types/stream';
 import { api } from './common';
-import { CreateStreamKeyResponse } from '@/types/api/stream';
+import { CreateStreamKeyResponse, StreamIdResponse, StreamKeyListResponse } from '@/types/api/stream';
 
 export const getStreams = async () => {
   const url = `/stream/list`;
@@ -29,11 +29,11 @@ export const stopStream = async () => {
   throw new Error('방송 종료 실패');
 };
 
-export const getStreamKey = async () => {
+export const getStreamKeys = async () => {
   const url = `/stream/streamKey`;
-  const res = await api<{ streamKey: string }>(url, 'GET');
+  const res = await api<StreamKeyListResponse>(url, 'GET');
   if ('success' in res && res.success) {
-    return res.data.streamKey;
+    return res.data.streamKeyList;
   }
   throw new Error('스트림 키 조회 실패');
 };
@@ -50,7 +50,7 @@ export const createStreamKey = async () => {
 
 export const changeStreamingTitle = async (streamKey: string, title: string) => {
   const url = `/stream/title`;
-  const res = await api<{ streamId: number }>(url, 'PATCH', { streamKey, title });
+  const res = await api<StreamIdResponse>(url, 'PATCH', { streamKey, title });
   if ('success' in res && res.success) {
     return res.data.streamId;
   }
