@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain } from 'electron';
 import { StreamClient } from './streamer/stream-client';
 import { URL } from 'url';
 import path from 'node:path';
+import { ApiError, ApiResponse } from '@/types/api';
 
 export const loadBackend = (win: BrowserWindow) => {
   new StreamClient(win);
@@ -51,4 +52,30 @@ export const loadBackend = (win: BrowserWindow) => {
       });
     });
   });
+
+  ipcMain.handle(
+    'api/fetch',
+    async (
+      _,
+      input: string | URL | globalThis.Request,
+      init?: RequestInit
+    ): Promise<ApiResponse<unknown> | ApiError> => {
+      try {
+        const res = await fetch(input, init);
+        const data = await res.json();
+        return data as ApiResponse<unknown> | ApiError;
+      } catch (e) {
+        if (e instanceof Error) {
+          console.error(e);
+        }
+        const apiError: ApiError = {
+          success: false,
+          statusCode: 404,
+          path: input.toString(),
+          errMsg: '네트워크 오류',
+        };
+        return apiError;
+      }
+    }
+  );
 };

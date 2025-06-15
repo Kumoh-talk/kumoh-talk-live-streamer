@@ -1,4 +1,4 @@
-import { useChat } from '@/hooks/useChat';
+import { useStreamValue } from '@/context/context';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const nameColors = [
@@ -25,7 +25,7 @@ export const ChatList = () => {
   const touched = useRef(false);
   const [autoScroll, setAutoScroll] = useState(true);
 
-  const { items } = useChat();
+  const { socketStore } = useStreamValue();
   const colors = useRef<Record<string, number>>({});
 
   const scrollToBottom = useCallback(() => {
@@ -52,7 +52,7 @@ export const ChatList = () => {
       scrollToBottom();
       setTimeout(scrollToBottom, 1);
     }
-  }, [autoScroll, items, scrollToBottom]);
+  }, [autoScroll, socketStore.chatMessageList, scrollToBottom]);
 
   const getColorIndex = (nickname: string) => {
     if (!colors.current[nickname]) {
@@ -68,7 +68,7 @@ export const ChatList = () => {
       onScroll={onScrollHandler}
       className="flex flex-col w-full h-0 flex-1 overflow-y-auto"
     >
-      {items.map((chat) => (
+      {socketStore.chatMessageList.map((chat) => (
         <div key={chat.chatId}>
           <span style={{ color: nameColors[getColorIndex(chat.nickname)] }}>
             {chat.nickname}: &nbsp;

@@ -4,6 +4,7 @@ import { useCaptureSource } from '@/hooks/useCaptureSource';
 import { useStreamer } from '@/hooks/useStreamer';
 import { useStreamerOptions } from '@/hooks/useStreamerOptions';
 import { CaptureSource } from '@/types/capture';
+import useSocketStore, { SocketStore } from '@/utils/stores/socketStore';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 export type Values = {
@@ -27,6 +28,8 @@ export type Values = {
   readonly gain: number;
   readonly level: number;
   readonly audioStream: MediaStream | null;
+
+  readonly socketStore: SocketStore;
 
   readonly accessToken?: string;
   readonly refreshToken?: string;
@@ -99,6 +102,8 @@ export const StreamProvider = (props: Props): React.ReactNode => {
   const [streamDesktop, setStreamDesktop] = useState<MediaStream | null>(null);
   const [streamWebcam, setStreamWebcam] = useState<MediaStream | null>(null);
 
+  const socketStore = useSocketStore();
+
   const { accessToken, refreshToken, handleLogin, logout } = useAuth();
 
   useEffect(() => {
@@ -143,10 +148,6 @@ export const StreamProvider = (props: Props): React.ReactNode => {
     };
     startCapture();
   }, [webcamSource]);
-
-  useEffect(() => {
-    setStreamKey('rtmp://localhost:1935/');
-  }, []);
 
   const actions: Actions = useMemo(
     () => ({
@@ -212,6 +213,8 @@ export const StreamProvider = (props: Props): React.ReactNode => {
           gain,
           level,
           audioStream,
+
+          socketStore,
 
           accessToken,
           refreshToken,

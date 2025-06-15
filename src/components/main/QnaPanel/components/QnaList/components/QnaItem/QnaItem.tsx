@@ -1,4 +1,4 @@
-import { Qna } from '@/types/qna';
+import { Qna } from '@/types/stream';
 import { formatRelativeTime } from '@/utils/functions';
 import { CheckRounded, CloseRounded, ThumbUpRounded } from '@mui/icons-material';
 import { motion } from 'framer-motion';
@@ -33,7 +33,7 @@ export const QnaItem = (props: Props) => {
       <div className="flex flex-row justify-between items-center text-sm text-gray-500">
         <button className="flex flex-row items-center gap-1">
           <ThumbUpRounded className="w-4 max-w-4 max-h-4" />
-          <span>{props.item.likeCount}</span>
+          <span>{props.item.likes}</span>
         </button>
         <span>
           <CreatedTime time={props.item.time} />

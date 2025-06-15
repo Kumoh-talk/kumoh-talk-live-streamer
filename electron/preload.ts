@@ -1,5 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron';
 import { StreamType } from './backend/types';
+import { ApiError, ApiResponse } from '@/types/api';
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
@@ -79,6 +80,12 @@ declare global {
       getAudioBitrate: () => Promise<number>;
       setAudioBitrate: (bitrate: number) => Promise<void>;
     };
+    api: {
+      fetch: (
+        input: string | URL | globalThis.Request,
+        init?: RequestInit
+      ) => Promise<ApiResponse<unknown> | ApiError>;
+    };
   }
 }
 
@@ -145,4 +152,9 @@ contextBridge.exposeInMainWorld('screenCapture', {
   selectSource: async (sourceId: string) => {
     await ipcRenderer.invoke('select-source', sourceId);
   },
+});
+
+contextBridge.exposeInMainWorld('api', {
+  fetch: async (input: string | URL | globalThis.Request, init?: RequestInit) =>
+    await ipcRenderer.invoke('api/fetch', input, init),
 });
