@@ -63,6 +63,7 @@ export const loadBackend = (win: BrowserWindow) => {
       try {
         const res = await fetch(input, init);
         const data = await res.json();
+        console.log(`API fetch: ${init?.method} ${input}\n${init?.body}\n`, data);
         return data as ApiResponse<unknown> | ApiError;
       } catch (e) {
         if (e instanceof Error) {
