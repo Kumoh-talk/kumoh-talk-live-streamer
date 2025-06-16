@@ -1,10 +1,13 @@
 import { useAudio } from '@/hooks/useAudio';
 import { useAuth } from '@/hooks/useAuth';
 import { useCaptureSource } from '@/hooks/useCaptureSource';
+import { useChatSubscription } from '@/hooks/socket/useChatSubscription';
+import { useSocketConnect } from '@/hooks/socket/useSocketConnet';
+import { useQnaSubscription } from '@/hooks/socket/useQnaSubscription';
 import { useStreamer } from '@/hooks/useStreamer';
 import { useStreamerOptions } from '@/hooks/useStreamerOptions';
 import { CaptureSource } from '@/types/capture';
-import { createStreamKey } from '@/utils/api/stream';
+import { createStreamKey, getStreams } from '@/utils/api/stream';
 import useSocketStore, { SocketStore } from '@/utils/stores/socketStore';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
@@ -76,8 +79,17 @@ type Props = {
 };
 
 export const StreamProvider = (props: Props): React.ReactNode => {
-  const { connect, disconnect, connStatus, streamKey, setStreamKey, title, setTitle, streamId } =
-    useStreamer();
+  const {
+    connect,
+    disconnect,
+    connStatus,
+    streamKey,
+    setStreamKey,
+    title,
+    setTitle,
+    streamId,
+    setStreamId,
+  } = useStreamer();
   const {
     videoCodec,
     setVideoCodec,
@@ -110,6 +122,10 @@ export const StreamProvider = (props: Props): React.ReactNode => {
   const socketStore = useSocketStore();
 
   const { accessToken, refreshToken, handleLogin, logout } = useAuth();
+
+  useSocketConnect({ streamId: String(streamId) });
+  useChatSubscription({ chatId: String(streamId) });
+  useQnaSubscription({ qnaId: String(streamId) });
 
   useEffect(() => {
     const startCapture = async () => {
@@ -170,8 +186,9 @@ export const StreamProvider = (props: Props): React.ReactNode => {
     if (!accessToken && streamKey) {
       // 로그아웃시 스트림 키 초기화
       setStreamKey('');
+      setStreamId(-1);
     }
-  }, [accessToken, streamKey, setStreamKey]);
+  }, [accessToken, streamKey, setStreamKey, setStreamId]);
 
   const actions: Actions = useMemo(
     () => ({

@@ -59,5 +59,6 @@ export const useStreamer = () => {
     title,
     setTitle,
     streamId,
+    setStreamId,
   };
 };

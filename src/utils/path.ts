@@ -4,13 +4,28 @@ export const END_POINTS = {
   PUBLISH: {
     CREATE_CHAT: (chatId: string) => `/app/streaming/${chatId}/add-chat`,
     CREATE_QNA: (qnaId: string) => `/app/streaming/${qnaId}/add-qna`,
-    LIKED_QNA: (qnaId: string) => `/app/streaming/${qnaId}/liked-qna`,
-    DELETE_QNA: (qnaId: string) => `/app/streaming/${qnaId}/delete-qna`,
+    GET_QNA_LIST: (streamId: string) => `/app/streaming/${streamId}/qna-list`,
+    LIKED_QNA: (streamId: string, qnaId: number) =>
+      `/app/streaming/${streamId}/liked-qna/${qnaId}`,
+    DELETE_QNA: (streamId: string, qnaId: number) =>
+      `/app/streaming/${streamId}/delete-qna/${qnaId}`,
+    VOTE_SELECT: (streamId: string, voteId: string) =>
+      `/app/streaming/${streamId}/submit-vote/${voteId}`,
+    VOTE_LIST_REQUEST: (streamId: string) =>
+      `/app/streaming/${streamId}/vote-list`,
   },
   SUBSCRIBE: {
-    NEW_CHAT: (chatId: string) => `/chat/streaming/${chatId}/add`,
-    NEW_QNA: (qnaId: string) => `/qna/streaming/${qnaId}/add`,
-    LIKED_QNA: (qnaId: string) => `/qna/streaming/${qnaId}/liked`,
-    DELETE_QNA: (qnaId: string) => `/qna/streaming/${qnaId}/delete`,
+    GET_QNA_LIST: (sessionId: string) => `/streaming/qna-list/${sessionId}`,
+    NEW_CHAT: (chatId: string) => `/streaming/chat/${chatId}/add`,
+    NEW_QNA: (qnaId: string) => `/streaming/qna/${qnaId}/add`,
+    LIKED_QNA: (streamId: string) => `/streaming/qna/${streamId}/liked`,
+    DELETE_QNA: (streamId: string) => `/streaming/qna/${streamId}/delete`,
+    VOTE_CURRENT: (sessionId: string) => `/streaming/vote-list/${sessionId}`,
+    VOTE_CLOSE_AND_RESULT: (streamId: string) =>
+      `/streaming/vote/${streamId}/close`,
+    VOTE_CREATE: (streamId: string) => `/streaming/vote/${streamId}/add-vote`,
+    CAPTION: '/streaming/caption',
+    SUMMARY: '/streaming/summary',
+    ERROR: (sessionId: string) => `/user/${sessionId}/queue/errors`,
   },
 };
