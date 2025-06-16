@@ -28,7 +28,7 @@ export type Qna = {
   anonymous: boolean;
 };
 
-type VoteSelect = {
+export type VoteSelect = {
   selectId: number;
   content: string;
 };

@@ -7,6 +7,7 @@ import {
   ChatPanel,
   QnaPanel,
   TitleInput,
+  VotePanel,
 } from '@/components/main';
 import { StreamProvider } from '@/context/context';
 
@@ -19,7 +20,10 @@ export const MainPage = () => {
           <div className="main-preview w-fit bg-white rounded-lg overflow-hidden">
             <VideoPreview />
           </div>
-          <QnaPanel />
+          <div className="flex flex-col gap-2 w-0 flex-1">
+            <QnaPanel />
+            <VotePanel />
+          </div>
         </section>
         <section className="flex flex-row gap-2 h-80">
           <div className="flex flex-col items-stretch w-[423px] p-2 gap-2 bg-white rounded-lg">

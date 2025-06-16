@@ -10,6 +10,7 @@ import { CaptureSource } from '@/types/capture';
 import { createStreamKey } from '@/utils/api/stream';
 import useSocketStore, { SocketStore } from '@/utils/stores/socketStore';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import useVoteSubscription from '@/hooks/socket/useVoteSubscription';
 
 export type Values = {
   readonly displaySource: string;
@@ -126,6 +127,7 @@ export const StreamProvider = (props: Props): React.ReactNode => {
   useSocketConnect({ streamId: String(streamId) });
   useChatSubscription({ chatId: String(streamId) });
   useQnaSubscription({ qnaId: String(streamId) });
+  useVoteSubscription({ streamId: String(streamId) });
 
   useEffect(() => {
     const startCapture = async () => {
