@@ -7,7 +7,7 @@ import { useQnaSubscription } from '@/hooks/socket/useQnaSubscription';
 import { useStreamer } from '@/hooks/useStreamer';
 import { useStreamerOptions } from '@/hooks/useStreamerOptions';
 import { CaptureSource } from '@/types/capture';
-import { createStreamKey, getStreams } from '@/utils/api/stream';
+import { createStreamKey } from '@/utils/api/stream';
 import useSocketStore, { SocketStore } from '@/utils/stores/socketStore';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
