@@ -1,11 +1,10 @@
 import { Qna } from '@/types/stream';
-import { formatRelativeTime } from '@/utils/functions';
-import { CheckRounded, CloseRounded, ThumbUpRounded } from '@mui/icons-material';
+import { CheckRounded, ThumbUpRounded } from '@mui/icons-material';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
 
 export interface Props {
   item: Qna;
+  onDelete?: (qnaId: number) => void;
 }
 
 export const QnaItem = (props: Props) => {
@@ -21,11 +20,8 @@ export const QnaItem = (props: Props) => {
       <header className="flex flex-row justify-between items-center w-full leading-none">
         <span className="font-medium text-sm">{props.item.nickname}</span>
         <div className="flex flex-row items-center gap-2">
-          <button>
+          <button onClick={() => props.onDelete?.(props.item.qnaId)}>
             <CheckRounded fontSize="small" />
-          </button>
-          <button>
-            <CloseRounded fontSize="small" />
           </button>
         </div>
       </header>
@@ -36,22 +32,21 @@ export const QnaItem = (props: Props) => {
           <span>{props.item.likes}</span>
         </button>
         <span>
-          <CreatedTime time={props.item.time} />
         </span>
       </div>
     </motion.li>
   );
 };
 
-const CreatedTime = (props: { time: string }) => {
-  const [timeString, setTimeString] = useState('');
-  useEffect(() => {
-    const updateTimeString = () => {
-      setTimeString(formatRelativeTime(props.time));
-    };
-    updateTimeString();
-    const interval = setInterval(updateTimeString, 3000);
-    return () => clearInterval(interval);
-  }, [props.time]);
-  return timeString;
-};
+// const CreatedTime = (props: { time: string }) => {
+//   const [timeString, setTimeString] = useState('');
+//   useEffect(() => {
+//     const updateTimeString = () => {
+//       setTimeString(formatRelativeTime(props.time));
+//     };
+//     updateTimeString();
+//     const interval = setInterval(updateTimeString, 3000);
+//     return () => clearInterval(interval);
+//   }, [props.time]);
+//   return timeString;
+// };
