@@ -17,8 +17,8 @@ export const Footer = () => {
   const formatTime = (startedTime: number) => {
     const elapsedTime = Date.now() - startedTime;
     const seconds = Math.floor((elapsedTime / 1000) % 60);
-    const minutes = Math.floor((seconds / 60) % 60);
-    const hours = Math.floor(minutes / 60);
+    const minutes = Math.floor((elapsedTime / 1000 / 60) % 60);
+    const hours = Math.floor(elapsedTime / 1000 / 60 / 60);
 
     const formattedSeconds = String(seconds).padStart(2, '0');
     const formattedMinutes = String(minutes).padStart(2, '0');
