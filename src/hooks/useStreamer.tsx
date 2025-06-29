@@ -56,6 +56,7 @@ export const useStreamer = () => {
   };
   const disconnect = async () => {
     await window.stream.stop();
+    setStreamId(-1); // 방송 종료시 streamId 초기화
   };
   const setStreamKey = async (key: string) => {
     // TODO: connect 상태에서 변경시 disconnect 후 재연결
