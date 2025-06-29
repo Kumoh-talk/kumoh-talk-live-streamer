@@ -5,7 +5,8 @@ import { loadBackend } from './backend/loader';
 import * as dotenv from 'dotenv';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-dotenv.config();
+const envPath = path.join(__dirname, '../.env');
+dotenv.config({ path: envPath });
 process.env.APP_ROOT = path.join(__dirname, '..');
 
 let selectedSourceId: string | null = null;
