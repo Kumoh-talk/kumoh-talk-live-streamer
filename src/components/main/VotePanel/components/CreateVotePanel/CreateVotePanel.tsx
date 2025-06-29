@@ -1,6 +1,6 @@
 import { useStreamValue } from '@/context/context';
 import useSocketStore from '@/utils/stores/socketStore';
-import { END_POINTS } from '@/utils/path';
+import { createVote } from '@/utils/api/vote';
 import { Button } from '@/components/common';
 import { useState } from 'react';
 import { Vote } from '@/types/stream';
@@ -10,8 +10,8 @@ export interface Props {
   onClose?: () => void;
 }
 export const CreateVotePanel = (props: Props) => {
-  const { accessToken, streamId } = useStreamValue();
-  const { stompClient } = useSocketStore();
+  const { streamId } = useStreamValue();
+  const { setVoteResult } = useSocketStore();
 
   const [form, setState] = useState<Omit<Vote, 'voteId'>>({
     title: '',
@@ -29,19 +29,15 @@ export const CreateVotePanel = (props: Props) => {
   };
 
   const onSubmit = (vote: Omit<Vote, 'voteId'>) => {
-    stompClient?.send(
-      END_POINTS.SUBSCRIBE.VOTE_CREATE(JSON.stringify(streamId)),
-      {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      JSON.stringify({
-        ...vote,
-        selects: selects.map((content, index) => ({
-          selectId: index,
-          content,
-        })),
-      })
-    );
+    createVote(streamId, {
+      title: vote.title,
+      multiple: vote.multiple,
+      selects,
+    });
+    setVoteResult({
+      voteId: 0,
+      voteCounts: [],
+    });
     props.onClose?.();
   };
 

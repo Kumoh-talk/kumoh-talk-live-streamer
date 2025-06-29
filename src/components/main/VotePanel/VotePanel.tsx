@@ -2,24 +2,19 @@ import { Button } from '@/components/common';
 import { VoteItem, CreateVotePanel } from './components';
 import { useState } from 'react';
 import { useStreamValue } from '@/context/context';
-import useSocketStore from '@/utils/stores/socketStore';
-import { END_POINTS } from '@/utils/path';
+import { closeVote } from '@/utils/api/vote';
 
 export const VotePanel = () => {
   const [isOpened, setIsOpened] = useState(false);
-  const { socketStore, streamId, accessToken } = useStreamValue();
-  const { stompClient } = useSocketStore();
+  const { socketStore, streamId } = useStreamValue();
 
-  const stopVote = () => {
-    stompClient?.send(
-      END_POINTS.SUBSCRIBE.VOTE_CLOSE_AND_RESULT(JSON.stringify(streamId)),
-      {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      JSON.stringify({
-        voteId: socketStore.vote.voteId,
-      })
-    );
+  const stopVote = async () => {
+    try {
+      const res = await closeVote(streamId, socketStore.vote.voteId);
+      console.log('투표 종료 성공:', res);
+    } catch (error) {
+      console.error('투표 종료 실패:', error);
+    }
   };
 
   const notStarted = isOpened ? (
@@ -28,10 +23,15 @@ export const VotePanel = () => {
     <Button onClick={() => setIsOpened(true)}>투표 만들기</Button>
   );
 
-  const started = (
+  const started = isOpened ? (
+    <CreateVotePanel onClose={() => setIsOpened(false)} />
+  ) : (
     <>
       {!socketStore.isVoteFinished && <Button onClick={stopVote}>투표 종료</Button>}
       <VoteItem item={socketStore.vote} result={socketStore.voteResult} />
+      {socketStore.isVoteFinished && (
+        <Button onClick={() => setIsOpened(true)}>새 투표 만들기</Button>
+      )}
     </>
   );
 
