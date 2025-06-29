@@ -20,7 +20,7 @@ export const QnaItem = (props: Props) => {
       <header className="flex flex-row justify-between items-center w-full leading-none">
         <span className="font-medium text-sm">{props.item.nickname}</span>
         <div className="flex flex-row items-center gap-2">
-          <button onClick={() => props.onDelete?.(props.item.qnaId)}>
+          <button onClick={() => props.onDelete?.(props.item.qnaId)} className='cursor-pointer'>
             <CheckRounded fontSize="small" />
           </button>
         </div>
