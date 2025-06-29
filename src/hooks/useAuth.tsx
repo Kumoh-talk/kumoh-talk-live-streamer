@@ -1,24 +1,30 @@
-import { useCallback } from 'react';
-import { useCookies } from 'react-cookie';
+import { useCallback, useEffect, useState } from 'react';
 
 export const useAuth = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(['accessToken', 'refreshToken']);
+  const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
+  const [refreshToken, setRefreshToken] = useState<string | undefined>(undefined);
+
   const handleLogin = useCallback(
     (accessToken: string, refreshToken: string) => {
-      setCookie('accessToken', accessToken, { path: '/' });
-      setCookie('refreshToken', refreshToken, { path: '/' });
+      setAccessToken(accessToken);
+      setRefreshToken(refreshToken);
     },
-    [setCookie]
+    [setAccessToken, setRefreshToken]
   );
 
   const logout = useCallback(() => {
-    removeCookie('accessToken', { path: '/' });
-    removeCookie('refreshToken', { path: '/' });
-  }, [removeCookie]);
+    setAccessToken(undefined);
+    setRefreshToken(undefined);
+  }, [setAccessToken, setRefreshToken]);
+
+  useEffect(() => {
+    window.electronCookie.set({ name: 'accessToken', value: accessToken || undefined, url: 'http://localhost' });
+    window.electronCookie.set({ name: 'refreshToken', value: refreshToken || undefined, url: 'http://localhost' });
+  }, [accessToken, refreshToken]);
 
   return {
-    accessToken: cookies.accessToken,
-    refreshToken: cookies.refreshToken,
+    accessToken,
+    refreshToken,
     handleLogin,
     logout,
   };

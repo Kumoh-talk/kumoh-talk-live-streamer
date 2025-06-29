@@ -1,10 +1,10 @@
 import { ApiError, ApiResponse } from '@/types/api';
-import Cookies from 'js-cookie';
 
-export const getHeaders = () => {
+export const getHeaders = async () => {
+  const accessToken = await window.electronCookie.get({ name: 'accessToken', url: 'http://localhost' });
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${Cookies.get('accessToken') || ''}`,
+    Authorization: `Bearer ${accessToken[0]?.value || ''}`,
   };
   return headers;
 };
@@ -18,7 +18,7 @@ export const api = async <T>(
   try {
     const res = (await window.api.fetch(`${import.meta.env.VITE_API_BASE_URI}${path}`, {
       method,
-      headers: getHeaders(),
+      headers: await getHeaders(),
       ...(body ? { body: JSON.stringify(body) } : {}),
     })) as ApiResponse<T> | ApiError;
     console.log('API Response:', res);

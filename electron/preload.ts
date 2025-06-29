@@ -1,4 +1,4 @@
-import { ipcRenderer, contextBridge } from 'electron';
+import { ipcRenderer, contextBridge, CookiesSetDetails, CookiesGetFilter } from 'electron';
 import { StreamType } from './backend/types';
 import { ApiError, ApiResponse } from '@/types/api';
 
@@ -86,6 +86,11 @@ declare global {
         init?: RequestInit
       ) => Promise<ApiResponse<unknown> | ApiError>;
     };
+    electronCookie: {
+      set: (cookie: CookiesSetDetails) => Promise<void>;
+      get: (filter: CookiesGetFilter) => Promise<CookiesSetDetails[]>;
+      remove: (url: string, name: string) => Promise<void>;
+    };
   }
 }
 
@@ -157,4 +162,10 @@ contextBridge.exposeInMainWorld('screenCapture', {
 contextBridge.exposeInMainWorld('api', {
   fetch: async (input: string | URL | globalThis.Request, init?: RequestInit) =>
     await ipcRenderer.invoke('api/fetch', input, init),
+});
+
+contextBridge.exposeInMainWorld('electronCookie', {
+  set: (cookie: CookiesSetDetails) => ipcRenderer.invoke('cookie/set', cookie),
+  get: (filter: CookiesGetFilter) => ipcRenderer.invoke('cookie/get', filter),
+  remove: (url: string, name: string) => ipcRenderer.invoke('cookie/remove', url, name),
 });

@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, CookiesGetFilter, CookiesSetDetails, ipcMain, session } from 'electron';
 import { StreamClient } from './streamer/stream-client';
 import { URL } from 'url';
 import path from 'node:path';
@@ -79,4 +79,16 @@ export const loadBackend = (win: BrowserWindow) => {
       }
     }
   );
+
+  ipcMain.handle('cookie/set', async (_, cookie: CookiesSetDetails) => {
+    return session.defaultSession.cookies.set(cookie);
+  });
+
+  ipcMain.handle('cookie/get', async (_, filter: CookiesGetFilter) => {
+    return session.defaultSession.cookies.get(filter);
+  });
+
+  ipcMain.handle('cookie/remove', async (_, url: string, name: string) => {
+    return session.defaultSession.cookies.remove(url, name);
+  });
 };
