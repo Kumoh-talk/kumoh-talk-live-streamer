@@ -29,6 +29,10 @@ export const CreateVotePanel = (props: Props) => {
   };
 
   const onSubmit = (vote: Omit<Vote, 'voteId'>) => {
+    if (selects.length < 2) {
+      alert('투표 항목은 최소 2개 이상이어야 합니다.');
+      return;
+    }
     createVote(streamId, {
       title: vote.title,
       multiple: vote.multiple,
