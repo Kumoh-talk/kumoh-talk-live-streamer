@@ -6,7 +6,7 @@ import { closeVote } from '@/utils/api/vote';
 
 export const VotePanel = () => {
   const [isOpened, setIsOpened] = useState(false);
-  const { socketStore, streamId } = useStreamValue();
+  const { streamKey, socketStore, streamId } = useStreamValue();
 
   const stopVote = async () => {
     try {
@@ -20,7 +20,8 @@ export const VotePanel = () => {
   const notStarted = isOpened ? (
     <CreateVotePanel onClose={() => setIsOpened(false)} />
   ) : (
-    <Button onClick={() => setIsOpened(true)}>투표 만들기</Button>
+    streamKey?.length > 0 &&
+    streamId != -1 && <Button onClick={() => setIsOpened(true)}>투표 만들기</Button>
   );
 
   const started = isOpened ? (
@@ -29,7 +30,7 @@ export const VotePanel = () => {
     <>
       {!socketStore.isVoteFinished && <Button onClick={stopVote}>투표 종료</Button>}
       <VoteItem item={socketStore.vote} result={socketStore.voteResult} />
-      {socketStore.isVoteFinished && (
+      {socketStore.isVoteFinished && streamKey?.length > 0 && streamId != -1 && (
         <Button onClick={() => setIsOpened(true)}>새 투표 만들기</Button>
       )}
     </>
