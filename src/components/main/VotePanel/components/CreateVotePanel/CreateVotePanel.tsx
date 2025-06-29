@@ -19,7 +19,7 @@ export const CreateVotePanel = (props: Props) => {
     selects: [],
   });
 
-  const [selects, setSelects] = useState<string[]>([]);
+  const [selects, setSelects] = useState<string[]>(['']);
 
   const updateForm = (key: keyof Omit<Vote, 'voteId'>, value: string | boolean) => {
     setState((prev) => ({
@@ -48,6 +48,7 @@ export const CreateVotePanel = (props: Props) => {
   const options = selects.map((content, index) => (
     <SelectItem
       key={index}
+      index={index + 1}
       title={content}
       onChange={(value) => {
         const newSelects = [...selects];
@@ -70,7 +71,7 @@ export const CreateVotePanel = (props: Props) => {
         value={form.title}
         onChange={(e) => updateForm('title', e.target.value)}
       />
-      <div className="flex flex-col gap-1">{options}</div>
+      <div className="flex flex-col gap-2">{options}</div>
       <Button
         onClick={() => {
           setSelects([...selects, '']);
@@ -78,19 +79,35 @@ export const CreateVotePanel = (props: Props) => {
       >
         <AddRounded />
       </Button>
-      <Button onClick={() => onSubmit(form)}>투표 시작</Button>
+      <div className="flex flex-row gap-2">
+        <label className="flex flex-row items-center gap-2 px-2">
+          <input
+            type="checkbox"
+            name="multiple"
+            checked={form.multiple}
+            onChange={(e) => updateForm('multiple', e.target.checked)}
+            className='size-4'
+          />
+          복수 선택 가능
+        </label>
+        <Button onClick={() => onSubmit(form)} className="flex-1 w-0">
+          투표 시작
+        </Button>
+      </div>
     </section>
   );
 };
 
 export interface SelectItemProps {
   title: string;
+  index: number;
   onChange: (value: string) => void;
   onDelete?: () => void;
 }
 export const SelectItem = (props: SelectItemProps) => {
   return (
-    <li className="list-none flex flex-row gap-2">
+    <li className="list-none flex flex-row gap-2 items-center">
+      <span className="w-6 text-center font-medium">{props.index}</span>
       <input
         type="text"
         name="title"
@@ -98,8 +115,8 @@ export const SelectItem = (props: SelectItemProps) => {
         onChange={(e) => props.onChange(e.target.value)}
         className="w-0 flex-1"
       />
-      <Button onClick={props.onDelete}>
-        <DeleteRounded />
+      <Button onClick={props.onDelete} className="px-2">
+        <DeleteRounded fontSize="small" />
       </Button>
     </li>
   );
