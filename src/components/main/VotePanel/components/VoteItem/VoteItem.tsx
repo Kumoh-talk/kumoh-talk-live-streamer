@@ -7,7 +7,6 @@ export interface Props {
 }
 
 export const VoteItem = (props: Props) => {
-  console.log(props.result)
   const allCount = props.result?.voteCounts?.reduce((acc, vote) => acc + vote.count, 0) ?? 1;
   return (
     <motion.li
@@ -40,8 +39,8 @@ export const VoteItem = (props: Props) => {
                 style={{
                   width: `${
                     allCount > 0
-                      ? (props.result.voteCounts?.find((vote) => select.selectId === vote.selectId)
-                          ?.count ?? 0) / allCount
+                      ? ((props.result.voteCounts?.find((vote) => select.selectId === vote.selectId)
+                          ?.count ?? 0) / allCount) * 100
                       : 0
                   }%`,
                 }}
