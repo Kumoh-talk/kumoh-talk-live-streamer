@@ -32,7 +32,7 @@ export const VoteItem = (props: Props) => {
               </span>
             )}
           </div>
-          <div className="flex h-2 rounded-sm w-full bg-gray-400">
+          <div className="flex h-2 rounded-sm w-full bg-gray-200">
             {props.result && (
               <div
                 className="bg-blue-500 h-full rounded-sm"
