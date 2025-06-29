@@ -5,6 +5,7 @@ import { Button } from '@/components/common';
 import { useState } from 'react';
 import { Vote } from '@/types/stream';
 import { AddRounded, DeleteRounded } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
 export interface Props {
   onClose?: () => void;
@@ -30,7 +31,7 @@ export const CreateVotePanel = (props: Props) => {
 
   const onSubmit = (vote: Omit<Vote, 'voteId'>) => {
     if (selects.length < 2) {
-      alert('투표 항목은 최소 2개 이상이어야 합니다.');
+      toast.warn('투표 항목은 최소 2개 이상이어야 합니다.');
       return;
     }
     createVote(streamId, {
@@ -86,7 +87,7 @@ export const CreateVotePanel = (props: Props) => {
             name="multiple"
             checked={form.multiple}
             onChange={(e) => updateForm('multiple', e.target.checked)}
-            className='size-4'
+            className="size-4"
           />
           복수 선택 가능
         </label>
