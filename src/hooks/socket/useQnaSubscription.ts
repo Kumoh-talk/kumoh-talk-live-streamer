@@ -5,11 +5,11 @@ import { END_POINTS } from '@/utils/path';
 import { Qna } from '@/types/stream';
 
 export interface Props {
-  qnaId: string;
+  streamId: string;
 }
 
 export const useQnaSubscription = (props: Props) => {
-  const { qnaId } = props;
+  const { streamId } = props;
   const getQnaListSubscribeRef = useRef<StompSubscription | null>(null);
   const newQnaSubscribeRef = useRef<StompSubscription | null>(null);
   const likeQnaSubscribeRef = useRef<StompSubscription | null>(null);
@@ -18,7 +18,7 @@ export const useQnaSubscription = (props: Props) => {
     useSocketStore();
 
   useEffect(() => {
-    if (qnaId && qnaId !== '-1' && stompClient) {
+    if (streamId && streamId !== '-1' && stompClient) {
       const getQnaSubscribe = stompClient.subscribe(
         END_POINTS.SUBSCRIBE.GET_QNA_LIST(
           stompClient.ws._transport.url.split('/')[5]
@@ -30,13 +30,13 @@ export const useQnaSubscription = (props: Props) => {
 
       // Subscribe 후 QnA 리스트 요청 메시지 발행
       stompClient.send(
-        END_POINTS.PUBLISH.GET_QNA_LIST(qnaId),
+        END_POINTS.PUBLISH.GET_QNA_LIST(streamId),
         {},
         JSON.stringify({})
       );
 
       const addQnaSubscribe = stompClient.subscribe(
-        END_POINTS.SUBSCRIBE.NEW_QNA(qnaId),
+        END_POINTS.SUBSCRIBE.NEW_QNA(streamId),
         (message) => {
           const newQna: Qna = {
             ...JSON.parse(message.body),
@@ -46,7 +46,7 @@ export const useQnaSubscription = (props: Props) => {
       );
 
       const likeQnaSubscribe = stompClient.subscribe(
-        END_POINTS.SUBSCRIBE.LIKED_QNA(qnaId),
+        END_POINTS.SUBSCRIBE.LIKED_QNA(streamId),
         (message) => {
           const likedId = Number(JSON.parse(message.body).qnaId);
           likeQna(likedId);
@@ -55,7 +55,7 @@ export const useQnaSubscription = (props: Props) => {
       );
 
       const deleteQnaSubscribe = stompClient.subscribe(
-        END_POINTS.SUBSCRIBE.DELETE_QNA(qnaId),
+        END_POINTS.SUBSCRIBE.DELETE_QNA(streamId),
         (message) => {
           const deleteId = Number(JSON.parse(message.body).qnaId);
           deleteQna(deleteId);
@@ -90,5 +90,5 @@ export const useQnaSubscription = (props: Props) => {
         deleteQnaSubscribeRef.current = null;
       }
     };
-  }, [qnaId, stompClient, setQnaList, addQna, likeQna, myLikedQna, deleteQna]);
+  }, [streamId, stompClient, setQnaList, addQna, likeQna, myLikedQna, deleteQna]);
 };

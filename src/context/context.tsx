@@ -126,7 +126,7 @@ export const StreamProvider = (props: Props): React.ReactNode => {
 
   useSocketConnect({ streamId: String(streamId) });
   useChatSubscription({ chatId: String(streamId) });
-  useQnaSubscription({ qnaId: String(streamId) });
+  useQnaSubscription({ streamId: String(streamId) });
   useVoteSubscription({ streamId: String(streamId) });
 
   useEffect(() => {
