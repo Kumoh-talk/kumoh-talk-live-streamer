@@ -5,7 +5,7 @@ export const Button = (props: React.ComponentProps<'button'>) => {
   const { className, children, ...rest } = props;
   return (
     <button
-      className={clsx(twMerge('px-4 py-2 rounded-lg cursor-pointer disabled:cursor-not-allowed', className), {'bg-gray-200' : !className?.includes('bg-')})}
+      className={clsx(twMerge('px-4 py-2 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed', className), {'bg-gray-200' : !className?.includes('bg-')})}
       {...rest}
     >
       {children}

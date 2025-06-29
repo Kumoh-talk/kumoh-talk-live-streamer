@@ -19,7 +19,9 @@ export const TitleInput = () => {
           value={_title}
           onChange={(e) => _setTitle(e.target.value)}
         />
-        <Button onClick={() => setTitle(_title)}>저장</Button>
+        <Button onClick={() => setTitle(_title)} disabled={_title == title}>
+          저장
+        </Button>
       </div>
     </div>
   );
